@@ -7,7 +7,8 @@ from djitellopy import TelloSwarm
 
 
 def swarm_example():
-    conf = Configuration('redme007', 'redme007', 'motdepasse')
+    # create and initialize a configuration
+    conf = Configuration('redme007', 'redme007', 'motdepasse', 24)
     conf.run()
     if conf.get_tello_ip_swarm() is None:
         logging.error("There is no available Tello drone")
@@ -15,7 +16,7 @@ def swarm_example():
     swarm = TelloSwarm.fromIps(conf.get_tello_ip_swarm())
     swarm.connect()
     swarm.takeoff()
-    swarm.move_forward(50)
+    swarm.move_forward(20)
     swarm.land()
     swarm.end()
 

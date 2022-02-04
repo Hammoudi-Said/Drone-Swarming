@@ -204,9 +204,9 @@ class Configuration(object):
         BATTERY_MIN = 30
         logging.info("Running configuration script ...")
         tello_network_name = self.find_tello_network()
-        if tello_network_name == []:
-            logging.warning("There is no available tello drone detected, Please reboot the tello drone ..")
-            return
+        # if tello_network_name == []:
+        #     logging.warning("There is no available tello drone detected, Please reboot the tello drone ..")
+        #     return
         print(f'Available tello network name : {tello_network_name}')
         tello = Tello()
         for net in tello_network_name:
