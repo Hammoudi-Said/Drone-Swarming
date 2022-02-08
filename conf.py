@@ -2,6 +2,7 @@ import os
 import platform
 import re
 import logging
+import sys
 import time
 
 import nmap
@@ -188,6 +189,41 @@ class Configuration(object):
         logging.info(f'Tello ip : {tello_ip}')
         return tello_ip
 
+    def find_available_network(self, num):
+        """
+
+        """
+        print(f'[Start_Searching]Searching for {num} available Tello...\n')
+        tello_network_name = self.find_tello_network()
+        if not tello_network_name:
+            print(f'There is {len(tello_network_name)} available Tello network detected')
+            print(f'Do you want to rescan ? Y/N ...')
+            resp = input()
+            if resp.strip().lower() == 'y' or resp.strip().lower() == 'yes':
+                return self.find_available_network(num)
+            else:
+                sys.exit()
+        elif len(tello_network_name) < num:
+            print(f'There is {len(tello_network_name)} available Tello network detected')
+            print(f'Do you want to continue ? Y/N ...')
+            resp = input()
+            if resp.strip().lower() == 'y' or resp.strip().lower() == 'yes':
+                return tello_network_name
+            else:
+                sys.exit()
+        elif len(tello_network_name) > num:
+            print(f'There is {len(tello_network_name)} available Tello network detected')
+            print(f'Do you want to continue with {len(tello_network_name)} drones ? Y/N ... ')
+            resp = input()
+            if resp.strip().lower() == 'y' or resp.strip().lower() == 'yes':
+                return tello_network_name
+            else:
+                tello_network_name = tello_network_name[:num]
+                return tello_network_name
+
+        elif num == len(tello_network_name):
+            return tello_network_name
+
     # https://stackoverflow.com/questions/2761829/python-get-default-gateway-for-a-local-interface-ip-address-in-linux/6556951
     def get_default_gateway_linux(self):
         """Read the default gateway directly from /proc."""
@@ -200,14 +236,28 @@ class Configuration(object):
 
                 return socket.inet_ntoa(struct.pack("<L", int(fields[2], 16)))
 
+
+
     def run(self):
-        BATTERY_MIN = 30
+        """
+        this function run the script configuration
+        """
+        # choose number of drone to configure
+        while True:
+            try:
+                num = int(input('Please, put the number of drone that you want to configure ?'))
+                break
+            except:
+                print("That's not a number!")
+        BATTERY_MIN = 20
         logging.info("Running configuration script ...")
-        tello_network_name = self.find_tello_network()
+        tello_network_name = self.find_available_network(num)
         # if tello_network_name == []:
         #     logging.warning("There is no available tello drone detected, Please reboot the tello drone ..")
         #     return
         print(f'Available tello network name : {tello_network_name}')
+        drone_up = []
+        drone_down = []
         tello = Tello()
         for net in tello_network_name:
             logging.info(f'Try to connect tello drone with network name {net} to local machine')
@@ -218,9 +268,17 @@ class Configuration(object):
                 battery = tello.get_battery()
                 logging.info(f'{net} battery : {battery}')
                 if battery > BATTERY_MIN:
+                    drone_up.append(tello.query_serial_number())
                     tello.connect_to_wifi(self.ssid, self.password)
                 else:
+                    print(f'Getting serial number of defected drone {net}.')
+                    drone_down.append(tello.query_serial_number())
                     logging.warning(f'The batery of {net} is lower then {BATTERY_MIN}, please change the battery')
+        print(f'There is {len(drone_up)} drones working : {drone_up}')
+        print(f'There is {len(drone_down)} drones not working with serial number: {drone_down}')
+        res = input("Do you want to continue ? Y/N ... ")
+        if res.strip().lower() == 'n' or res.strip().lower() == 'No':
+            sys.exit()
         logging.info("connecting to router ...\n")
 
         while not self.check_wifi_connection(self.ssid):
@@ -233,9 +291,20 @@ class Configuration(object):
         # if not self.check_wifi_connection(self.ssid):
         #     logging.error(f'Unable to connect to wifi with ssid: {self.ssid} ')
         #     return
-        time.sleep(15)
+
         print("searching for tello drone ip")
         tello_ip = self.getTelloIp()
+        while len(tello_ip) != len(drone_up):
+            print(f'There is {len(tello_ip)} drone connected to the router. It must be {len(drone_up)}')
+            res = input("Do you want to rescan ? Y/N ...")
+            if res.strip().lower() == 'y' or res.strip().lower() == 'yes':
+                tello_ip = self.getTelloIp()
+            else:
+                break
         self.tello_ip_swarm = tello_ip
         print(f'Connected tello ip : {tello_ip} \n')
+        return tello_ip
 
+if __name__ == '__main__':
+    conf = Configuration('redme007', 'redme007', 'motdepasse', 24)
+    conf.run()
