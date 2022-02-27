@@ -3,8 +3,6 @@ import platform
 import re
 import logging
 import sys
-import time
-
 import nmap
 import socket, struct
 
@@ -183,8 +181,9 @@ class Configuration(object):
         # remove default gateway
         if platform.system() == 'Linux':
             default_gateway = self.get_default_gateway_linux()
-            tello_ip.remove(default_gateway)
-            logging.info(f"Remove default gateway ({default_gateway}) from all devices ")
+            if default_gateway in tello_ip:
+                tello_ip.remove(default_gateway)
+                logging.info(f"Remove default gateway ({default_gateway}) from all devices ")
 
         logging.info(f'Tello ip : {tello_ip}')
         return tello_ip
@@ -304,7 +303,3 @@ class Configuration(object):
         self.tello_ip_swarm = tello_ip
         print(f'Connected tello ip : {tello_ip} \n')
         return tello_ip
-
-if __name__ == '__main__':
-    conf = Configuration('redme007', 'redme007', 'motdepasse', 24)
-    conf.run()
