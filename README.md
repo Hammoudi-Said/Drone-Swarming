@@ -42,19 +42,20 @@ from conf import *
 from djitellopy import TelloSwarm
 
 def swarm_example():
-    # create, initialize a configuration and save it in a variable for later
     # change the parameter with your router's parameter
-    conf = Configuration('router_name', 'router_ssid', 'router_password', router_netmask)
+    conf = Configuration('router_name', 'router_ssid', 'router_password', 24)
     # run tello configuration script
-    conf.run()
-    if conf.get_tello_ip_swarm() is None:
-        logging.error("There is no available Tello drone")
-        return
+    ip = conf.run()
+
     # create swarm  drone with available tello ip that we recover from conf variable
-    swarm = TelloSwarm.fromIps(conf.get_tello_ip_swarm())
+    swarm = TelloSwarm.fromIps(ip)
     swarm.connect()
     swarm.takeoff()
-    swarm.move_forward(20)
+
+    swarm.move_forward(30)
+    swarm.move_down(30)
+    swarm.sequential(lambda i, tello: tello.move_up(i * 10 + 20))
+    swarm.sequential(lambda i, tello: tello.move_down(i * 10 + 20))
     swarm.land()
     swarm.end()
 ```
@@ -63,3 +64,12 @@ def swarm_example():
 ```bash
 python3 main.py
 ```
+
+#### Tello drone states
+- Execute script drone swarm example with state stored in json file
+- In `example.py`change the path where the file will be stored with your own path for `get_satate_background` function. 
+```bash
+python3 example.py
+```
+
+- A file named `state_history.json` was created in the given path. You will find all the states of the swarm during the flight.
