@@ -9,10 +9,6 @@ from conf import Configuration
 
 #ip = ['192.168.33.147', '192.168.33.200', '192.168.33.213', '192.168.33.251', '192.168.33.38', '192.168.33.6', '192.168.33.75']
 
-#tello1 = Tello(ip[0])
-
-
-
 def get_satate_background(swarm, path):
     """Start a process in background to get current state of each tello
     :swarm: a swarm of tello

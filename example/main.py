@@ -3,12 +3,24 @@
 from conf import *
 from djitellopy import TelloSwarm
 
+
+def reboot():
+    conf = Configuration('redme007', 'redme007', 'motdepasse', 24)
+    ip = conf.getTelloIp()
+    swarm = TelloSwarm.fromIps(ip)
+    swarm.connect()
+    for tello in swarm:
+        tello.reboot()
+    swarm.end()
+
+
 def swarm_example():
     # create, initialize a configuration and save it in a variable for later
     # change the parameter with your router's parameter
     conf = Configuration('redme007', 'redme007', 'motdepasse', 24)
     # run tello configuration script
-    ip = conf.run()
+    #ip = conf.run()
+    ip = conf.getTelloIp()
 
     # create swarm  drone with available tello ip that we recover from conf variable
     swarm = TelloSwarm.fromIps(ip)
@@ -27,5 +39,18 @@ def swarm_example():
     swarm.land()
     swarm.end()
 
+
+from threading import Thread
+
+def func1():
+    print('Working')
+
+def func2():
+    print("Working")
+
 if __name__ == '__main__':
-    swarm_example()
+    Thread(target = func1).start()
+    Thread(target = func2).start()
+# if __name__ == '__main__':
+#     swarm_example()
+
