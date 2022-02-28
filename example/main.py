@@ -5,6 +5,8 @@ from djitellopy import TelloSwarm
 
 
 def reboot():
+    """not working
+    """
     conf = Configuration('redme007', 'redme007', 'motdepasse', 24)
     ip = conf.getTelloIp()
     swarm = TelloSwarm.fromIps(ip)
@@ -40,17 +42,6 @@ def swarm_example():
     swarm.end()
 
 
-from threading import Thread
-
-def func1():
-    print('Working')
-
-def func2():
-    print("Working")
-
 if __name__ == '__main__':
-    Thread(target = func1).start()
-    Thread(target = func2).start()
-# if __name__ == '__main__':
-#     swarm_example()
+    swarm_example()
 
