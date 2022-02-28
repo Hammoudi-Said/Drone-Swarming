@@ -20,12 +20,12 @@ fi
 # Install python modules
 
 # djitellopy
-python3 -c "import djitellopy"
-if [ $? == 0 ]; then
-  echo "djitellopy already exist"
-else
-  pip3 install -y djitellopy
-fi
+#python3 -c "import djitellopy"
+#if [ $? == 0 ]; then
+#  echo "djitellopy already exist"
+#else
+#  pip3 install -y djitellopy
+#fi
 
 # platform
 python3 -c "import platform"
